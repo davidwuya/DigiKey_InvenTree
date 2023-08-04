@@ -26,6 +26,6 @@ const (
 )
 ```
 ## Todo
-- [] Test coverage with Go Tests and Actions
-- [] A better, more intuitive TUI with [Bubble Tea](https://github.com/charmbracelet/bubbletea)
+- [ ] Test coverage with Go Tests and Actions
+- [ ] A better, more intuitive TUI with [Bubble Tea](https://github.com/charmbracelet/bubbletea)
 
