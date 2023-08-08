@@ -1,11 +1,9 @@
 from blabel import LabelWriter
-import logging
 import os
 import argparse
 
 def write_labels(ManufacturerPartNumber: str, LimitedTaxonomy: str, ProductDescription: str) -> None:
     # find fonttools logging and disable it
-    logging.getLogger("fontTools").setLevel(logging.CRITICAL)
     label_writer = LabelWriter("template.html", default_stylesheets=("style.css",))
     # longest allowable string is maxlength characters
     maxlength = 14
@@ -44,13 +42,11 @@ def write_labels(ManufacturerPartNumber: str, LimitedTaxonomy: str, ProductDescr
     fname = f"{ManufacturerPartNumber}.pdf"
     try:
         label_writer.write_labels(records, target=fname)
-        logging.info(f"Labels written to {fname}")
         # move to labels folder
         os.rename(fname, os.path.join("labels", fname))
         # open the PDF
         os.startfile(os.path.join("labels", fname))
     except FileExistsError:
-        logging.error(f"File {fname} already exists.")
         pass
 
 if __name__ == "__main__":

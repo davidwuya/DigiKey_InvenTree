@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DigiKeyPart struct {
@@ -91,16 +92,12 @@ func NewDigiKeyPart(response map[string]interface{}) *DigiKeyPart {
 func WriteLabels(d *DigiKeyPart) {
 	// so I gave up on implementing WriteLabel in Go and just called the python script
 	// I'm sorry
+	log.Debug("Generating Labels")
+	// probably the backslash causing issue?
 
-	// install python dependencies from requirements.txt
-	cmd_dep := exec.Command("pip", "install", "-r", "requirements.txt")
-	err_dep := cmd_dep.Run()
-	if err_dep != nil {
-		log.Fatal(err_dep)
-	}
-	cmd := exec.Command("python", "labelwriter.py", "-m", d.ManufacturerPartNumber, "-l", d.LimitedTaxonomy[len(d.LimitedTaxonomy)-2], "-d", d.ProductDescription)
+	cmd := exec.Command("python", "labelwriter.py", "-m", strings.ReplaceAll(d.ManufacturerPartNumber, "/", "-"), "-l", d.LimitedTaxonomy[len(d.LimitedTaxonomy)-2], "-d", d.ProductDescription)
 	err := cmd.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }

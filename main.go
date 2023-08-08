@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func init() {
 
 	log.SetOutput(os.Stdout)
 	log.SetFormatter(&log.TextFormatter{
-		ForceColors: true,
+		ForceColors:   true,
 		FullTimestamp: false,
 	})
-	log.SetLevel(log.WarnLevel)
+	log.SetLevel(log.TraceLevel)
 }
 
 func ProcessParts() {
@@ -52,9 +53,13 @@ func ProcessParts() {
 	var ThisSupplierPart SupplierPart
 
 	ThisStockItem = GetInvenTreeStockItemByPartName(ThisDigiKeyPart.ProductDescription, AllInvenTreeStockItems, AllInvenTreeParts)
+	log.Trace("Stock item: ", ThisStockItem)
 	ThisPart = GetInvenTreePartByName(ThisDigiKeyPart.ProductDescription, AllInvenTreeParts)
+	log.Trace("Part: ", ThisPart)
 	ThisSupplierPart = GetSupplierPartByName(ThisDigiKeyPart)
+	log.Trace("Supplier part: ", ThisSupplierPart)
 	ThisManufacturerPart = GetManufacturerPartByName(ThisDigiKeyPart)
+	log.Trace("Manufacturer part: ", ThisManufacturerPart)
 
 	if ThisPart.Pk == 0 {
 		log.Info("Part does not exist.")
@@ -63,19 +68,19 @@ func ProcessParts() {
 		log.Info("Part created.")
 	}
 
-	if ThisManufacturerPart.Pk == 0 {
+	if ThisManufacturerPart.Pk == 0 && ThisPart.Pk == 0 {
 		log.Trace("Manufacturer part does not exist.")
 		ThisManufacturerPart = CreateManufacturerPart(ThisPart, ThisDigiKeyPart, AllInvenTreeCompanies)
 		log.Trace("Manufacturer part created.")
 	}
 
-	if ThisSupplierPart.Part == 0 {
+	if ThisSupplierPart.Part == 0 && ThisPart.Pk == 0 {
 		log.Trace("Supplier part does not exist.")
 		ThisSupplierPart = CreateSupplierPart(&ThisPart, &ThisManufacturerPart, ThisDigiKeyPart)
 		log.Trace("Supplier part created.")
 	}
 
-	if ThisStockItem.Pk == 0 {
+	if ThisStockItem.Pk == 0 && ThisPart.Pk == 0 {
 		log.Trace("Stock item does not exist.")
 		fmt.Print("Enter the location: ")
 		LocString := ProcessInput()
@@ -89,6 +94,7 @@ func ProcessParts() {
 		PrettyPrintStockItem(ThisStockItem, AllInvenTreeLocations)
 		fmt.Println("Enter quantity to add to or subtract from stock. Enter 0 to rewrite labels.")
 		StockUpdateQty := int(ProcessQuantity())
+		log.Debug("Stock Update Quantity: ", StockUpdateQty)
 		if StockUpdateQty != 0 {
 			UpdateStock(ThisStockItem, StockUpdateQty)
 			fmt.Println("Stock updated.")

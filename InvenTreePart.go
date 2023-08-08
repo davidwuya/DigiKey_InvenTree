@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	"io"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+
+	"github.com/go-resty/resty/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 type InvenTreePart struct {
@@ -92,8 +93,6 @@ func GetInvenTreePartByMPN(mpn string, parts []InvenTreePart) InvenTreePart {
 	return InvenTreePart{}
 }
 
-
-
 func UploadThumbnailToInvenTreePart(part *InvenTreePart, d *DigiKeyPart) bool {
 	ImageURL := d.PrimaryPhoto
 	TempFile := "temp.jpg"
@@ -146,7 +145,6 @@ func UploadThumbnailToInvenTreePart(part *InvenTreePart, d *DigiKeyPart) bool {
 
 	if err != nil {
 		log.Fatal(err)
-		
 
 	}
 	if resp2.StatusCode() == 200 {
@@ -293,8 +291,9 @@ func SupplierPartDebugPrint(s SupplierPart) {
 	fmt.Println("ManufacturerPart: ", s.ManufacturerPart)
 }
 
-func GetManufacturerPartByName(d *DigiKeyPart) ManufacturerPart{
+func GetManufacturerPartByName(d *DigiKeyPart) ManufacturerPart {
 	client := resty.New()
+	client.SetRetryCount(3)
 	resp, err := client.R().
 		SetAuthScheme("Token").
 		SetAuthToken(INVENTREE_TOKEN).
